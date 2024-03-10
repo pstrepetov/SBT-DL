@@ -1,6 +1,6 @@
 from module.parameters import Parameters
 import numpy as np
-
+import scipy.stats as stats
 
 class Dropout:
     """Реализует dropout
@@ -38,8 +38,8 @@ class Dropout:
             return inpt
 
         # TODO: Реализовать dropout
-        self.mask = None
-        self.out =None
+        self.mask = self.mask = stats.bernoulli.rvs(1 - self.p, size=inpt.shape)
+        self.out = inpt * self.mask * 1./(1.-self.p)
 
         return self.out
 
@@ -64,7 +64,7 @@ class Dropout:
         if self.regime == "Eval":
             raise RuntimeError("Нельзя посчитать градиенты в режиме оценки")
         # TODO: Реализовать рассчет градиента с dropout
-        input_grads = None
+        input_grads = grads * self.mask * 1./(1.-self.p)
         return input_grads
 
     def _train(self):
