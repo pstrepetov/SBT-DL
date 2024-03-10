@@ -122,7 +122,12 @@ def train(dataset, model, epochs=100, lr=1e-3, batch_size=1000,
         dataloader = Dataloader(dataset, batch_size=batch_size)
         for vecs, labels in progress_bar(dataloader):
             # TODO: Реализовать обучение модели на батче данных
-            pass
+            optimizer.zero_grad()
+            preds = model(vecs)
+
+            train_loss = hinge_loss(preds, labels)
+            train_loss.backward()
+            optimizer.step()
 
         if (epoch + 1) % step == 0 or (epoch + 1) == epochs:
             if (epoch + 1) == epochs and ((epoch + 1) % step != 0):
@@ -137,7 +142,10 @@ def train(dataset, model, epochs=100, lr=1e-3, batch_size=1000,
             for vecs, labels in progress_bar(dataloader,
                                              text='Evaluating train'):
                 # TODO: Реализовать рассчет accuracy модели на батче данных
-                pass
+                preds = model(vecs)
+                train_acc += np.sum(np.argmax(preds.array, axis=-1) == labels)
+                train_acc_len += len(labels)
+            train_acc /= train_acc_len
 
             values['Train loss'] = train_loss
             values['Train acc'] = train_acc
@@ -171,7 +179,11 @@ def train(dataset, model, epochs=100, lr=1e-3, batch_size=1000,
                 for vecs, labels in progress_bar(valid_dataloader,
                                                  text='Evaluating valid'):
                     # TODO: Реализовать рассчет accuracy модели на батче данных
-                    pass
+                    preds = model(vecs)
+                    valid_loss = hinge_loss(preds, labels)
+                    valid_acc += np.sum(np.argmax(preds.array, axis=-1) == labels)
+                    valid_acc_len += len(labels)
+                valid_acc /= valid_acc_len
 
                 values['Valid loss'] = valid_loss
                 values['Valid acc'] = valid_acc
