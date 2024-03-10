@@ -25,7 +25,7 @@ class ReLU:
             Выход слоя
         """
         # TODO: Реализовать рассчет RELU функции активации
-        self.out = None
+        self.out = np.maximum(inpt, 0)
 
         return self.out
 
@@ -48,7 +48,7 @@ class ReLU:
     def _compute_gradients(self, grads):
         """Считает градиенты модели"""
         # TODO: Реализовать рассчет градиентов
-        input_grads = None
+        input_grads = np.multiply(grads, self.out > 0)
         return input_grads
 
     def _train(self):
