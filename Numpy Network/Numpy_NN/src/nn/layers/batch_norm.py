@@ -54,11 +54,21 @@ class BatchNorm:
         """
         if self.regime == "Eval":
             # TODO: Реализовать batch norm в eval фазе
-            out = None
+            self.inpt_hat = (inpt - self.E)/np.sqrt(self.D + self.eps)
+            out = self.gamma * self.inpt_hat + self.beta
             return out
 
         # TODO: Реализовать batch norm в train фазе
-        out = None
+        batch_mean = np.mean(inpt, axis=0)
+        self.tmp_D = np.var(inpt, axis=0)
+        self.inpt_hat = (inpt - batch_mean)/np.sqrt(self.tmp_D + self.eps)
+        out = self.gamma * self.inpt_hat + self.beta
+        if (self.E is not None and self.D is not None):
+            self.E = self.E * self.momentum + batch_mean * (1 - self.momentum)
+            self.D = self.D * self.momentum + self.tmp_D * (1 - self.momentum)
+        else:
+            self.E = batch_mean
+            self.D = self.tmp_D
 
         return out
 
@@ -81,10 +91,30 @@ class BatchNorm:
             raise RuntimeError("Нельзя посчитать градиенты в режиме оценки")
 
         # TODO: Реализовать рассчет градиента в batch norm
+        self.beta.grads = np.sum(grads, axis=0)
+        self.gamma.grads = np.sum(grads*self.inpt_hat, axis=0)
+        
+        sqrtvar = np.sqrt(self.tmp_D + self.eps)
+        xmu = self.inpt_hat * sqrtvar
+        N,D = xmu
 
-        self.beta.grads = None
-        self.gamma.grads = None
-        input_grads = None
+        divar = np.sum(grads*xmu, axis=0)
+        dxmu1 = grads/sqrtvar
+
+        dsqrtvar = -1. /(sqrtvar**2) * divar
+
+        dvar = 0.5 * 1. /np.sqrt(self.tmp_D + self.eps) * dsqrtvar
+
+        dsq = 1. /N * np.ones((N,D)) * dvar
+
+        dxmu2 = 2 * xmu * dsq
+
+        dx1 = (dxmu1 + dxmu2)
+        dmu = -1 * np.sum(dxmu1+dxmu2, axis=0)
+        
+        dx2 = 1. /N * np.ones((N,D)) * dmu
+        input_grads = (dx1 + dx2) * self.gamma
+
         return input_grads
 
     def _train(self):
