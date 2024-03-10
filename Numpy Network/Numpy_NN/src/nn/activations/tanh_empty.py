@@ -25,7 +25,7 @@ class Tanh:
             Выход слоя
         """
         # TODO: Реализовать рассчет tanh функции активации
-        self.out = None
+        self.out = np.tanh(inpt)
 
         return self.out
 
@@ -48,7 +48,7 @@ class Tanh:
     def _compute_gradients(self, grads):
         """Считает градиенты модели"""
         # TODO: Реализовать рассчет градиентов
-        input_grads = None
+        input_grads = grads * (1 - self.out ** 2)
         return input_grads
 
     def _train(self):
