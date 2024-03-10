@@ -25,4 +25,4 @@ class Parameters:
         """
         if method=='kaiming':
             # TODO: Реализовать инициализацию параметров модели методом Kaiming
-            self.params = None
+            self.params = np.random.normal(0, np.sqrt(2/self.shape[0]), self.shape) if len(self.shape) == 2 else np.random.normal(0, np.sqrt(2/np.prod(self.shape[1:])), self.shape)
