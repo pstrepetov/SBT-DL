@@ -45,7 +45,7 @@ class Linear:
         """
         self.inpt = inpt
         # TODO: Реализовать forward pass для линейного слоя
-        forward_pass = None
+        forward_pass = self.inpt @ self.W.T + self.b
 
         return forward_pass
 
@@ -65,11 +65,11 @@ class Linear:
     def _compute_gradients(self, grads):
         """Считает градиенты модели"""
         # TODO: Реализовать рассчет градиентов для линейного слоя
-        self.W.grads = None
+        self.W.grads = grads.T * self.inpt
 
         if self.bias:
-            self.b.grads = None
-        input_grads = None
+            self.b.grads = np.sum(grads, axis=0)
+        input_grads = grads * self.W.T
         return input_grads
 
     def _train(self):
