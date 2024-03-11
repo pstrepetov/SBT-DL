@@ -45,7 +45,7 @@ class Linear:
         """
         self.inpt = inpt
         # TODO: Реализовать forward pass для линейного слоя
-        forward_pass = self.inpt @ self.W.T + self.b
+        forward_pass = self.inpt @ self.W.params.T + self.params.b
 
         return forward_pass
 
@@ -69,7 +69,7 @@ class Linear:
 
         if self.bias:
             self.b.grads = np.sum(grads, axis=0)
-        input_grads = grads * self.W.T
+        input_grads = grads * self.W.params.T
         return input_grads
 
     def _train(self):
