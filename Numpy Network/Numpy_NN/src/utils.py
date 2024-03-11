@@ -64,7 +64,7 @@ def gradient_check(
     x,
     y,
     neural_net,
-    epsilon=1e-2,
+    epsilon=1e-7,
     num_last=3,
     optim_method="GD",
     lr=3e-4,
