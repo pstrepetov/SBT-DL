@@ -99,7 +99,7 @@ def gradient_check(
     for i, param in enumerate(params):
         sh = param.params.shape
         if i >= len(params) - num_last:
-            print(sh)
+            #print(sh)
             for j in range(sh[0]):
                 if len(sh) == 1:
                     param_copy = param.params[j]
