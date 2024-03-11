@@ -138,7 +138,8 @@ def train(dataset, model, epochs=100, lr=1e-3, batch_size=1000,
 
             dataloader = Dataloader(dataset, batch_size=len(dataset),
                                     is_train=False)
-
+            train_acc = 0.0
+            train_acc_len = 0
             for vecs, labels in progress_bar(dataloader,
                                              text='Evaluating train'):
                 # TODO: Реализовать рассчет accuracy модели на батче данных
@@ -147,7 +148,7 @@ def train(dataset, model, epochs=100, lr=1e-3, batch_size=1000,
                 train_acc_len += len(labels)
             train_acc /= train_acc_len
 
-            values['Train loss'] = train_loss
+            values['Train loss'] = train_loss.loss
             values['Train acc'] = train_acc
 
             num_params = 0
@@ -167,7 +168,7 @@ def train(dataset, model, epochs=100, lr=1e-3, batch_size=1000,
             values['Grad/W'] = scale
 
             if return_history:
-                train_loss_history.append(train_loss)
+                train_loss_history.append(train_loss.loss)
                 train_acc_history.append(train_acc)
 
             if valid_dataset:
@@ -175,7 +176,8 @@ def train(dataset, model, epochs=100, lr=1e-3, batch_size=1000,
                 valid_dataloader = Dataloader(valid_dataset,
                                               batch_size=len(valid_dataset),
                                               is_train=False)
-
+                valid_acc = 0.0
+                valid_acc_len = 0
                 for vecs, labels in progress_bar(valid_dataloader,
                                                  text='Evaluating valid'):
                     # TODO: Реализовать рассчет accuracy модели на батче данных
@@ -185,11 +187,11 @@ def train(dataset, model, epochs=100, lr=1e-3, batch_size=1000,
                     valid_acc_len += len(labels)
                 valid_acc /= valid_acc_len
 
-                values['Valid loss'] = valid_loss
+                values['Valid loss'] = valid_loss.loss
                 values['Valid acc'] = valid_acc
 
                 if return_history:
-                    valid_loss_history.append(valid_loss)
+                    valid_loss_history.append(valid_loss.loss)
                     valid_acc_history.append(valid_acc)
 
             if timer:
