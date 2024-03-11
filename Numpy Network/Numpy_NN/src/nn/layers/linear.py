@@ -45,7 +45,9 @@ class Linear:
         """
         self.inpt = inpt
         # TODO: Реализовать forward pass для линейного слоя
-        forward_pass = self.inpt @ self.W.params + self.b.params
+        forward_pass = self.inpt @ self.W.params
+        if self.bias:
+            forward_pass += self.b.params
 
         return forward_pass
 
