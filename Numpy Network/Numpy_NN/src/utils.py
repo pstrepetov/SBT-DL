@@ -141,6 +141,6 @@ def gradient_check(
     print("grad check norm:", LA.norm(norm_chicl))
 
     if diff <= epsilon:
-        print("Backprop is incorrect!")
-    else:
         print("Backprop is correct!")
+    else:
+        print("Backprop is incorrect!")
