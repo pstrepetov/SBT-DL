@@ -128,7 +128,7 @@ def gradient_check(
                         loss_m = hinge_loss(pred, y)
                         param.params[j][k] = param_copy
                         norm_chicl.append((loss_p.loss - loss_m.loss) / (2 * epsilon))
-                        norm_backprop.append(param.grads[j][k])
+                        norm_backprop.append(param.grads.T[j][k])
 
     norm_chicl = np.array(norm_chicl)
     norm_backprop = np.array(norm_backprop)
