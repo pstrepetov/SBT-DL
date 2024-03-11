@@ -61,8 +61,8 @@ class Adam:
                 grads += self.alpha2 * param.params
 
             grads += param.grads
-            param.m = self.beta_1 * param.m + (1 - self.beta_1) * grads
-            param.v = self.beta_2 * param.v + (1 - self.beta_2) * np.square(grads)
+            param.m = self.beta_1 * param.m + (1 - self.beta_1) * grads.T
+            param.v = self.beta_2 * param.v + (1 - self.beta_2) * np.square(grads.T)
             m_tmp = param.m / (1 - self.beta_1**self.t)
             v_tmp = param.v / (1 - self.beta_2**self.t)
 
