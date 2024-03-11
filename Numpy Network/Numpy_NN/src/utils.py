@@ -1,4 +1,5 @@
 import time
+import numpy as np
 from nn.loss_functions.hinge_loss import hinge_loss
 from optimization.adam_optimizer import Adam
 from optimization.gd_optimizer import GD
