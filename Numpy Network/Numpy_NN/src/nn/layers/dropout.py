@@ -1,4 +1,4 @@
-from module.parameters import Parameters
+from nn.module.parameters import Parameters
 import numpy as np
 import scipy.stats as stats
 
