@@ -3,7 +3,6 @@ from nn.loss_functions.hinge_loss import hinge_loss
 from optimization.adam_optimizer import Adam
 from optimization.gd_optimizer import GD
 from numpy import linalg as LA
-from colorama import Fore, Style
 
 def progress_bar(iterable, text='Epoch progress', end=''):
     """Мониториг выполнения эпохи
@@ -141,6 +140,6 @@ def gradient_check(
     print("grad check norm:", LA.norm(norm_chicl))
 
     if diff <= epsilon:
-        print(Fore.GREEN + "Everything OK" + Style.RESET_ALL)
+        print("Backprop is incorrect!")
     else:
-        print(Fore.RED + "Something wrong with backprop" + Style.RESET_ALL)
+        print("Backprop is correct!")
