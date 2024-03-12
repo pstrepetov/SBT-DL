@@ -39,4 +39,4 @@ class GD:
                 grads += self.alpha2 * param.params
             grads += param.grads
 
-            param.params = param.params - self.lr * grads
+            param.params = param.params - self.lr * grads.T
