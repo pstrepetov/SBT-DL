@@ -55,14 +55,14 @@ class BatchNorm:
         if self.regime == "Eval":
             # TODO: Реализовать batch norm в eval фазе
             self.inpt_hat = (inpt - self.E)/np.sqrt(self.D + self.eps)
-            out = self.gamma * self.inpt_hat + self.beta
+            out = self.gamma.params * self.inpt_hat + self.beta.params
             return out
 
         # TODO: Реализовать batch norm в train фазе
         batch_mean = np.mean(inpt, axis=0)
         self.tmp_D = np.var(inpt, axis=0)
         self.inpt_hat = (inpt - batch_mean)/np.sqrt(self.tmp_D + self.eps)
-        out = self.gamma * self.inpt_hat + self.beta
+        out = self.gamma.params * self.inpt_hat + self.beta.params
         if (self.E is not None and self.D is not None):
             self.E = self.E * self.momentum + batch_mean * (1 - self.momentum)
             self.D = self.D * self.momentum + self.tmp_D * (1 - self.momentum)
@@ -96,7 +96,7 @@ class BatchNorm:
         
         sqrtvar = np.sqrt(self.tmp_D + self.eps)
         xmu = self.inpt_hat * sqrtvar
-        N,D = xmu
+        N,D = xmu.shape
 
         divar = np.sum(grads*xmu, axis=0)
         dxmu1 = grads/sqrtvar
@@ -113,7 +113,7 @@ class BatchNorm:
         dmu = -1 * np.sum(dxmu1+dxmu2, axis=0)
         
         dx2 = 1. /N * np.ones((N,D)) * dmu
-        input_grads = (dx1 + dx2) * self.gamma
+        input_grads = (dx1 + dx2) * self.gamma.params
 
         return input_grads
 
