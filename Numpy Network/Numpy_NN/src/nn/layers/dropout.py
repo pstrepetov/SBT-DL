@@ -1,6 +1,5 @@
 from nn.module.parameters import Parameters
 import numpy as np
-import scipy.stats as stats
 
 class Dropout:
     """Реализует dropout
@@ -38,7 +37,7 @@ class Dropout:
             return inpt
 
         # TODO: Реализовать dropout
-        self.mask = self.mask = stats.bernoulli.rvs(1 - self.p, size=inpt.shape)
+        self.mask = np.random.binomial(1, self.p, size=inpt.shape[1:])
         self.out = inpt * self.mask * 1./(1.-self.p)
 
         return self.out
