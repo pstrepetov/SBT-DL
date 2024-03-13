@@ -1,7 +1,6 @@
 from nn.module.parameters import Parameters
 import numpy as np
 
-
 class BatchNorm:
     """Реализует Batch norm
 
@@ -54,16 +53,23 @@ class BatchNorm:
             Выход слоя
         """
         if self.regime == "Eval":
-            self.inpt_hat = (inpt - self.E) / np.sqrt(self.D + self.eps)
-            out = self.inpt_hat * self.gamma.params + self.beta.params
+            # TODO: Реализовать batch norm в eval фазе
+            self.inpt_hat = (inpt - self.E)/np.sqrt(self.D + self.eps)
+            out = self.gamma.params * self.inpt_hat + self.beta.params
             return out
 
+        # TODO: Реализовать batch norm в train фазе
+        batch_mean = np.mean(inpt, axis=0)
         self.tmp_D = np.var(inpt, axis=0)
-        self.inpt_hat = (inpt - np.mean(inpt, axis=0)) / np.sqrt(self.tmp_D + self.eps)
-        out = self.inpt_hat * self.gamma.params + self.beta.params
+        self.inpt_hat = (inpt - batch_mean)/np.sqrt(self.tmp_D + self.eps)
+        out = self.gamma.params * self.inpt_hat + self.beta.params
+        if (self.E is not None and self.D is not None):
+            self.E = self.E * self.momentum + batch_mean * (1 - self.momentum)
+            self.D = self.D * self.momentum + self.tmp_D * (1 - self.momentum)
+        else:
+            self.E = batch_mean
+            self.D = self.tmp_D
 
-        self.D = (1 - self.momentum) * self.D + self.momentum * self.tmp_D
-        self.E = (1 - self.momentum) * self.E + self.momentum * np.mean(inpt, axis=0)
         return out
 
     def __call__(self, *inpt):
@@ -84,25 +90,30 @@ class BatchNorm:
         if self.regime == "Eval":
             raise RuntimeError("Нельзя посчитать градиенты в режиме оценки")
 
-        batch_size = self.inpt_hat.shape[0]
-
+        # TODO: Реализовать рассчет градиента в batch norm
         self.beta.grads = np.sum(grads, axis=0)
-        d_gamma_x_hat = grads
+        self.gamma.grads = np.sum(grads*self.inpt_hat, axis=0)
+        
+        sqrtvar = np.sqrt(self.tmp_D + self.eps)
+        xmu = self.inpt_hat * sqrtvar
+        N,D = xmu.shape
 
-        self.gamma.grads = np.sum(self.inpt_hat * d_gamma_x_hat, axis=0)
+        divar = np.sum(grads*xmu, axis=0)
+        dxmu1 = grads/sqrtvar
 
-        x_mu = self.inpt_hat * np.sqrt(self.tmp_D + self.eps)
-        d_var = 0.5 / np.sqrt(self.tmp_D + self.eps) * (-1. / (self.tmp_D + self.eps) * np.sum(
-            x_mu * self.gamma.params * d_gamma_x_hat,
-            axis=0
-        ))
+        dsqrtvar = -1. /(sqrtvar**2) * divar
 
-        d_sq_dev = np.ones((batch_size, self.in_dim)) / batch_size * d_var
-        d_mu = -np.sum(
-            (1. / np.sqrt(self.tmp_D + self.eps) * self.gamma.params * d_gamma_x_hat) + (2 * x_mu * d_sq_dev),
-            axis=0
-        )
-        input_grads = (1. / np.sqrt(self.tmp_D + self.eps) * self.gamma.params * d_gamma_x_hat) + (2 * x_mu * d_sq_dev) + np.ones((batch_size, self.in_dim)) / batch_size * d_mu
+        dvar = 0.5 * 1. /np.sqrt(self.tmp_D + self.eps) * dsqrtvar
+
+        dsq = 1. /N * np.ones((N,D)) * dvar
+
+        dxmu2 = 2 * xmu * dsq
+
+        dx1 = (dxmu1 + dxmu2)
+        dmu = -1 * np.sum(dxmu1+dxmu2, axis=0)
+        
+        dx2 = 1. /N * np.ones((N,D)) * dmu
+        input_grads = (dx1 + dx2) * self.gamma.params
 
         return input_grads
 
